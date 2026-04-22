@@ -1,0 +1,83 @@
+:root {
+  --bg: #f5f7fa;
+  --text: #000;
+  --table-bg: #ffffff;
+  --header: #4CAF50;
+}
+
+.dark {
+  --bg: #1e1e1e;
+  --text: #ffffff;
+  --table-bg: #2c2c2c;
+  --header: #2e7d32;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+}
+
+.container {
+  margin: 20px;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 10px;
+}
+
+h2 {
+  text-align: center;
+}
+
+.controls {
+  text-align: center;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--table-bg);
+}
+
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+th {
+  background-color: var(--header);
+  color: white;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border: none;
+  outline: none;
+  padding: 5px;
+  background: transparent;
+  color: var(--text);
+}
+
+button {
+  margin: 10px 5px;
+  padding: 8px 12px;
+  border: none;
+  background: #4CAF50;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+button.delete {
+  background: red;
+}
+
+textarea {
+  width: 100%;
+  height: 150px;
+  margin-top: 10px;
+}
