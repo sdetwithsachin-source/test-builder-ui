@@ -74,7 +74,7 @@ function App() {
     try {
       const jsonData = JSON.stringify({ steps: rows });
 
-      const response = await fetch("http://localhost:8080/api/test/run", {
+      const response = await fetch("https://automation-backend-2-phfv.onrender.com/api/test/run", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
