@@ -82,8 +82,19 @@ function App() {
         body: jsonData
       });
 
-      const result = await response.text();
-      alert(result);
+      // ✅ parse JSON (IMPORTANT CHANGE)
+      const data = await response.json();
+
+      // ✅ show message
+      alert(data.message);
+
+      // ✅ build video URL
+      const videoUrl = `https://automation-backend-2-phfv.onrender.com/api/test/video?path=${encodeURIComponent(data.videoPath)}`;
+
+      console.log("Video URL:", videoUrl);
+
+      // ✅ trigger download / open video
+      window.open(videoUrl, "_blank");
 
     } catch (error) {
       console.error("Error:", error);
