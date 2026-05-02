@@ -34,12 +34,12 @@ function App() {
     };
   }
 
-  // 🔥 WAKE UP BACKEND ON PAGE LOAD
+  // 🔥 WAKE UP BACKEND ON PAGE LOAD (FIXED URL)
   useEffect(() => {
     const wakeUpServer = async () => {
       try {
         console.log("Waking up backend...");
-        await fetch("https://automation-backend-2-phfv.onrender.com/health");
+        await fetch("https://automation-backend-2-phfv.onrender.com/api/test/health");
         console.log("Backend is awake");
       } catch (error) {
         console.error("Wake-up failed:", error);
@@ -80,18 +80,16 @@ function App() {
     setOutput(JSON.stringify({ steps: rows }, null, 2));
   };
 
-  // 🚀 RUN TEST WITH WAKE-UP HANDLING
+  // 🚀 RUN TEST WITH FIXED HEALTH CALL
   const runTest = async () => {
     if (isRunning) return;
 
     setIsRunning(true);
 
     try {
-      // 🔥 Step 1: Wake server before running test
       setStatusMessage("⏳ Waking server...");
-      await fetch("https://automation-backend-2-phfv.onrender.com/health");
+      await fetch("https://automation-backend-2-phfv.onrender.com/api/test/health");
 
-      // 🔥 Step 2: Run test
       setStatusMessage("🚀 Running test...");
 
       const jsonData = JSON.stringify({ steps: rows });
@@ -109,10 +107,8 @@ function App() {
 
       const data = await response.json();
 
-      // ✅ Success message
       setStatusMessage("✅ Test completed successfully!");
 
-      // ✅ Open video
       const videoUrl = `https://automation-backend-2-phfv.onrender.com/api/test/video?path=${encodeURIComponent(
         data.videoPath
       )}`;
@@ -142,7 +138,6 @@ function App() {
 
         <button onClick={generateJSON}>📦 Generate JSON</button>
 
-        {/* 🚀 RUN BUTTON */}
         <button
           onClick={runTest}
           disabled={isRunning}
@@ -158,7 +153,6 @@ function App() {
         </button>
       </div>
 
-      {/* ✅ STATUS MESSAGE */}
       {statusMessage && <p className="status">{statusMessage}</p>}
 
       <table>
