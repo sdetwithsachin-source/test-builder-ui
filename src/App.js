@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 
 const actions = [
@@ -18,7 +18,6 @@ function App() {
   const [rows, setRows] = useState([createEmptyRow(1)]);
   const [output, setOutput] = useState("");
 
-  // ✅ NEW STATES
   const [isRunning, setIsRunning] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
 
@@ -34,6 +33,21 @@ function App() {
       description: ""
     };
   }
+
+  // 🔥 WAKE UP BACKEND ON PAGE LOAD
+  useEffect(() => {
+    const wakeUpServer = async () => {
+      try {
+        console.log("Waking up backend...");
+        await fetch("https://automation-backend-2-phfv.onrender.com/health");
+        console.log("Backend is awake");
+      } catch (error) {
+        console.error("Wake-up failed:", error);
+      }
+    };
+
+    wakeUpServer();
+  }, []);
 
   const toggleTheme = () => {
     setTheme(theme === "light" ? "dark" : "light");
@@ -66,14 +80,20 @@ function App() {
     setOutput(JSON.stringify({ steps: rows }, null, 2));
   };
 
-  // 🚀 UPDATED RUN TEST FUNCTION
+  // 🚀 RUN TEST WITH WAKE-UP HANDLING
   const runTest = async () => {
     if (isRunning) return;
 
     setIsRunning(true);
-    setStatusMessage("🚀 Test execution started...");
 
     try {
+      // 🔥 Step 1: Wake server before running test
+      setStatusMessage("⏳ Waking server...");
+      await fetch("https://automation-backend-2-phfv.onrender.com/health");
+
+      // 🔥 Step 2: Run test
+      setStatusMessage("🚀 Running test...");
+
       const jsonData = JSON.stringify({ steps: rows });
 
       const response = await fetch(
@@ -92,12 +112,10 @@ function App() {
       // ✅ Success message
       setStatusMessage("✅ Test completed successfully!");
 
-      // ✅ Build video URL
+      // ✅ Open video
       const videoUrl = `https://automation-backend-2-phfv.onrender.com/api/test/video?path=${encodeURIComponent(
         data.videoPath
       )}`;
-
-      console.log("Video URL:", videoUrl);
 
       window.open(videoUrl, "_blank");
 
@@ -124,12 +142,11 @@ function App() {
 
         <button onClick={generateJSON}>📦 Generate JSON</button>
 
-        {/* 🚀 UPDATED RUN BUTTON */}
+        {/* 🚀 RUN BUTTON */}
         <button
           onClick={runTest}
           disabled={isRunning}
-          className={`run-btn ${isRunning ? "disabled-btn" : ""
-            }`}
+          className={`run-btn ${isRunning ? "disabled-btn" : ""}`}
         >
           {isRunning ? (
             <>
@@ -142,9 +159,7 @@ function App() {
       </div>
 
       {/* ✅ STATUS MESSAGE */}
-      {statusMessage && (
-        <p className="status">{statusMessage}</p>
-      )}
+      {statusMessage && <p className="status">{statusMessage}</p>}
 
       <table>
         <thead>
