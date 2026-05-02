@@ -34,7 +34,7 @@ function App() {
     };
   }
 
-  // 🔥 WAKE UP BACKEND ON PAGE LOAD (FIXED URL)
+  // 🔥 WAKE UP BACKEND ON PAGE LOAD
   useEffect(() => {
     const wakeUpServer = async () => {
       try {
@@ -80,7 +80,7 @@ function App() {
     setOutput(JSON.stringify({ steps: rows }, null, 2));
   };
 
-  // 🚀 RUN TEST WITH FIXED HEALTH CALL
+  // 🚀 RUN TEST (FINAL FIXED VERSION)
   const runTest = async () => {
     if (isRunning) return;
 
@@ -107,13 +107,30 @@ function App() {
 
       const data = await response.json();
 
-      setStatusMessage("✅ Test completed successfully!");
+      // 🔥 DEBUG VIDEO PATH
+      console.log("Video Path from API:", data.videoPath);
 
-      const videoUrl = `https://automation-backend-2-phfv.onrender.com/api/test/video?path=${encodeURIComponent(
-        data.videoPath
-      )}`;
+      // ✅ HANDLE VIDEO DOWNLOAD
+      if (data.videoPath && data.videoPath !== "Video not available") {
 
-      window.open(videoUrl, "_blank");
+        const videoUrl = `https://automation-backend-2-phfv.onrender.com/api/test/video?path=${encodeURIComponent(
+          data.videoPath
+        )}`;
+
+        console.log("Video URL:", videoUrl);
+
+        const link = document.createElement("a");
+        link.href = videoUrl;
+        link.download = "test-video.webm";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        setStatusMessage("✅ Test completed & video downloaded!");
+
+      } else {
+        setStatusMessage("⚠️ Test completed but video not available");
+      }
 
     } catch (error) {
       console.error("Error:", error);
