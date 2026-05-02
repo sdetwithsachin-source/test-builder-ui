@@ -11,17 +11,16 @@ const actions = [
 ];
 
 const locatorTypes = ["N/A", "css", "xpath", "id", "text"];
-
 const assertions = ["", "equals", "contains", "visible"];
 
 function App() {
   const [theme, setTheme] = useState("light");
-
-  const [rows, setRows] = useState([
-    createEmptyRow(1)
-  ]);
-
+  const [rows, setRows] = useState([createEmptyRow(1)]);
   const [output, setOutput] = useState("");
+
+  // ✅ NEW STATES
+  const [isRunning, setIsRunning] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
 
   function createEmptyRow(step) {
     return {
@@ -53,10 +52,8 @@ function App() {
 
   const handleChange = (index, field, value) => {
     const updated = [...rows];
-
     updated[index][field] = value;
 
-    // Special rule for OPEN_URL
     if (field === "action" && value === "OPEN_URL") {
       updated[index].locatorType = "N/A";
       updated[index].locatorValue = "";
@@ -69,36 +66,48 @@ function App() {
     setOutput(JSON.stringify({ steps: rows }, null, 2));
   };
 
-  // 🚀 NEW FUNCTION (RUN TEST)
+  // 🚀 UPDATED RUN TEST FUNCTION
   const runTest = async () => {
+    if (isRunning) return;
+
+    setIsRunning(true);
+    setStatusMessage("🚀 Test execution started...");
+
     try {
       const jsonData = JSON.stringify({ steps: rows });
 
-      const response = await fetch("https://automation-backend-2-phfv.onrender.com/api/test/run", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: jsonData
-      });
+      const response = await fetch(
+        "https://automation-backend-2-phfv.onrender.com/api/test/run",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: jsonData
+        }
+      );
 
-      // ✅ parse JSON (IMPORTANT CHANGE)
       const data = await response.json();
 
-      // ✅ show message
-      alert(data.message);
+      // ✅ Success message
+      setStatusMessage("✅ Test completed successfully!");
 
-      // ✅ build video URL
-      const videoUrl = `https://automation-backend-2-phfv.onrender.com/api/test/video?path=${encodeURIComponent(data.videoPath)}`;
+      // ✅ Build video URL
+      const videoUrl = `https://automation-backend-2-phfv.onrender.com/api/test/video?path=${encodeURIComponent(
+        data.videoPath
+      )}`;
 
       console.log("Video URL:", videoUrl);
 
-      // ✅ trigger download / open video
       window.open(videoUrl, "_blank");
 
     } catch (error) {
       console.error("Error:", error);
-      alert("Failed to run test");
+      setStatusMessage("❌ Failed to run test");
+    } finally {
+      setTimeout(() => {
+        setIsRunning(false);
+      }, 1000);
     }
   };
 
@@ -112,11 +121,30 @@ function App() {
         </button>
 
         <button onClick={addRow}>➕ Add Step</button>
+
         <button onClick={generateJSON}>📦 Generate JSON</button>
 
-        {/* ✅ NEW BUTTON ADDED HERE */}
-        <button onClick={runTest}>▶ Run Test</button>
+        {/* 🚀 UPDATED RUN BUTTON */}
+        <button
+          onClick={runTest}
+          disabled={isRunning}
+          className={`run-btn ${isRunning ? "disabled-btn" : ""
+            }`}
+        >
+          {isRunning ? (
+            <>
+              <span className="spinner"></span> Running...
+            </>
+          ) : (
+            "▶ Run Test"
+          )}
+        </button>
       </div>
+
+      {/* ✅ STATUS MESSAGE */}
+      {statusMessage && (
+        <p className="status">{statusMessage}</p>
+      )}
 
       <table>
         <thead>
