@@ -146,15 +146,31 @@ function App() {
         document.body.removeChild(link);
       }
 
+      // ✅ WAIT FOR REPORT FILE TO BE READY
+      await new Promise(resolve =>
+        setTimeout(resolve, 2000)
+      );
+
       // ✅ FETCH REPORT
       const reportResponse = await fetch(
         `${BASE_URL}/api/test/report`
       );
 
-      const reportData = await reportResponse.json();
+      if (!reportResponse.ok) {
+        throw new Error(
+          "Failed to fetch report"
+        );
+      }
 
-      console.log("Report:", reportData);
+      const reportData =
+        await reportResponse.json();
 
+      console.log(
+        "Fetched Report:",
+        reportData
+      );
+
+      // ✅ UPDATE UI
       setReport(reportData);
 
       setStatusMessage(

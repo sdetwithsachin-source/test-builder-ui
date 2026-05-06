@@ -143,3 +143,130 @@ textarea {
   color: white;
   border: 1px solid #666;
 }
+
+/* ========================= */
+/* 🚀 REPORT SECTION STYLES */
+/* ========================= */
+
+.report-section {
+  margin-top: 40px;
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0px 2px 12px rgba(0, 0, 0, 0.12);
+  text-align: left;
+}
+
+.container.dark .report-section {
+  background: #2c2c2c;
+  color: white;
+}
+
+.report-section h2 {
+  margin-bottom: 20px;
+  color: #28a745;
+}
+
+.report-section p {
+  margin: 8px 0;
+  font-size: 16px;
+}
+
+/* REPORT TABLE */
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.report-table th {
+  background: #28a745;
+  color: white;
+  padding: 12px;
+  text-align: center;
+}
+
+.report-table td {
+  padding: 12px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.report-table tr:nth-child(even) {
+  background: #f8f9fa;
+}
+
+.container.dark .report-table tr:nth-child(even) {
+  background: #3a3a3a;
+}
+
+.container.dark .report-table td {
+  border: 1px solid #555;
+}
+
+/* STATUS COLORS */
+.pass-status {
+  color: green;
+  font-weight: bold;
+}
+
+.fail-status {
+  color: red;
+  font-weight: bold;
+}
+
+/* LOGS SECTION */
+.logs {
+  background: #111;
+  color: #00ff88;
+  padding: 15px;
+  border-radius: 10px;
+  margin-top: 20px;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.logs p {
+  margin: 5px 0;
+  font-family: monospace;
+  font-size: 14px;
+}
+
+/* SCREENSHOT LINKS */
+.report-table a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.report-table a:hover {
+  text-decoration: underline;
+}
+
+/* DARK MODE LINKS */
+.container.dark .report-table a {
+  color: #66b3ff;
+}
+
+/* RESPONSIVE */
+@media screen and (max-width: 768px) {
+
+  table,
+  .report-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  button {
+    margin: 5px;
+  }
+}
