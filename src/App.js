@@ -6,7 +6,7 @@ const actions = [
   "CLICK",
   "TYPE",
   "WAIT",
-  "ASSERT_TEXT",
+  "VERIFY_TEXT",
   "SCREENSHOT"
 ];
 
@@ -21,6 +21,9 @@ function App() {
   const [isRunning, setIsRunning] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
 
+  // ✅ NEW: REPORT STATE
+  const [report, setReport] = useState(null);
+
   function createEmptyRow(step) {
     return {
       step,
@@ -34,13 +37,17 @@ function App() {
     };
   }
 
-  // 🔥 WAKE UP BACKEND ON PAGE LOAD
+  // ✅ BACKEND URL
+  const BASE_URL =
+    "https://automation-backend-2-phfv.onrender.com";
+
+  // 🔥 WAKE UP BACKEND
   useEffect(() => {
     const wakeUpServer = async () => {
       try {
         console.log("Waking up backend...");
-        await fetch("https://automation-backend-2-phfv.onrender.com/api/test/health");
-        console.log("Backend is awake");
+        await fetch(`${BASE_URL}/api/test/health`);
+        console.log("Backend awake");
       } catch (error) {
         console.error("Wake-up failed:", error);
       }
@@ -61,11 +68,13 @@ function App() {
     const updated = rows
       .filter((_, i) => i !== index)
       .map((row, i) => ({ ...row, step: i + 1 }));
+
     setRows(updated);
   };
 
   const handleChange = (index, field, value) => {
     const updated = [...rows];
+
     updated[index][field] = value;
 
     if (field === "action" && value === "OPEN_URL") {
@@ -80,22 +89,27 @@ function App() {
     setOutput(JSON.stringify({ steps: rows }, null, 2));
   };
 
-  // 🚀 RUN TEST (FINAL FIXED VERSION)
+  // 🚀 RUN TEST
   const runTest = async () => {
     if (isRunning) return;
 
     setIsRunning(true);
 
     try {
+
       setStatusMessage("⏳ Waking server...");
-      await fetch("https://automation-backend-2-phfv.onrender.com/api/test/health");
+
+      await fetch(`${BASE_URL}/api/test/health`);
 
       setStatusMessage("🚀 Running test...");
 
-      const jsonData = JSON.stringify({ steps: rows });
+      const jsonData = JSON.stringify({
+        steps: rows
+      });
 
+      // ✅ RUN EXECUTION
       const response = await fetch(
-        "https://automation-backend-2-phfv.onrender.com/api/test/run",
+        `${BASE_URL}/api/test/run`,
         {
           method: "POST",
           headers: {
@@ -107,35 +121,56 @@ function App() {
 
       const data = await response.json();
 
-      // 🔥 DEBUG VIDEO PATH
-      console.log("Video Path from API:", data.videoPath);
+      console.log("Run Response:", data);
 
-      // ✅ HANDLE VIDEO DOWNLOAD
-      if (data.videoPath && data.videoPath !== "Video not available") {
+      // ✅ VIDEO DOWNLOAD
+      if (
+        data.videoPath &&
+        data.videoPath !== "Video not available"
+      ) {
 
-        const videoUrl = `https://automation-backend-2-phfv.onrender.com/api/test/video?path=${encodeURIComponent(
-          data.videoPath
-        )}`;
-
-        console.log("Video URL:", videoUrl);
+        const videoUrl =
+          `${BASE_URL}/api/test/video?path=${encodeURIComponent(
+            data.videoPath
+          )}`;
 
         const link = document.createElement("a");
+
         link.href = videoUrl;
         link.download = "test-video.webm";
+
         document.body.appendChild(link);
+
         link.click();
+
         document.body.removeChild(link);
-
-        setStatusMessage("✅ Test completed & video downloaded!");
-
-      } else {
-        setStatusMessage("⚠️ Test completed but video not available");
       }
 
+      // ✅ FETCH REPORT
+      const reportResponse = await fetch(
+        `${BASE_URL}/api/test/report`
+      );
+
+      const reportData = await reportResponse.json();
+
+      console.log("Report:", reportData);
+
+      setReport(reportData);
+
+      setStatusMessage(
+        "✅ Test completed successfully!"
+      );
+
     } catch (error) {
-      console.error("Error:", error);
-      setStatusMessage("❌ Failed to run test");
+
+      console.error(error);
+
+      setStatusMessage(
+        "❌ Test execution failed"
+      );
+
     } finally {
+
       setTimeout(() => {
         setIsRunning(false);
       }, 1000);
@@ -144,25 +179,35 @@ function App() {
 
   return (
     <div className={`container ${theme}`}>
+
       <h2>🧪 Test Automation Builder</h2>
 
       <div className="controls">
+
         <button onClick={toggleTheme}>
-          {theme === "light" ? "🌙 Dark Mode" : "☀️ Light Mode"}
+          {theme === "light"
+            ? "🌙 Dark Mode"
+            : "☀️ Light Mode"}
         </button>
 
-        <button onClick={addRow}>➕ Add Step</button>
+        <button onClick={addRow}>
+          ➕ Add Step
+        </button>
 
-        <button onClick={generateJSON}>📦 Generate JSON</button>
+        <button onClick={generateJSON}>
+          📦 Generate JSON
+        </button>
 
         <button
           onClick={runTest}
           disabled={isRunning}
-          className={`run-btn ${isRunning ? "disabled-btn" : ""}`}
+          className={`run-btn ${isRunning ? "disabled-btn" : ""
+            }`}
         >
           {isRunning ? (
             <>
-              <span className="spinner"></span> Running...
+              <span className="spinner"></span>
+              Running...
             </>
           ) : (
             "▶ Run Test"
@@ -170,8 +215,11 @@ function App() {
         </button>
       </div>
 
-      {statusMessage && <p className="status">{statusMessage}</p>}
+      {statusMessage && (
+        <p className="status">{statusMessage}</p>
+      )}
 
+      {/* ✅ STEP TABLE */}
       <table>
         <thead>
           <tr>
@@ -190,13 +238,18 @@ function App() {
         <tbody>
           {rows.map((row, index) => (
             <tr key={index}>
+
               <td>{row.step}</td>
 
               <td>
                 <select
                   value={row.action}
                   onChange={(e) =>
-                    handleChange(index, "action", e.target.value)
+                    handleChange(
+                      index,
+                      "action",
+                      e.target.value
+                    )
                   }
                 >
                   {actions.map((a) => (
@@ -208,9 +261,15 @@ function App() {
               <td>
                 <select
                   value={row.locatorType}
-                  disabled={row.action === "OPEN_URL"}
+                  disabled={
+                    row.action === "OPEN_URL"
+                  }
                   onChange={(e) =>
-                    handleChange(index, "locatorType", e.target.value)
+                    handleChange(
+                      index,
+                      "locatorType",
+                      e.target.value
+                    )
                   }
                 >
                   {locatorTypes.map((l) => (
@@ -222,9 +281,15 @@ function App() {
               <td>
                 <input
                   value={row.locatorValue}
-                  disabled={row.action === "OPEN_URL"}
+                  disabled={
+                    row.action === "OPEN_URL"
+                  }
                   onChange={(e) =>
-                    handleChange(index, "locatorValue", e.target.value)
+                    handleChange(
+                      index,
+                      "locatorValue",
+                      e.target.value
+                    )
                   }
                 />
               </td>
@@ -233,7 +298,11 @@ function App() {
                 <input
                   value={row.data}
                   onChange={(e) =>
-                    handleChange(index, "data", e.target.value)
+                    handleChange(
+                      index,
+                      "data",
+                      e.target.value
+                    )
                   }
                 />
               </td>
@@ -243,7 +312,11 @@ function App() {
                   type="number"
                   value={row.wait}
                   onChange={(e) =>
-                    handleChange(index, "wait", e.target.value)
+                    handleChange(
+                      index,
+                      "wait",
+                      e.target.value
+                    )
                   }
                 />
               </td>
@@ -252,7 +325,11 @@ function App() {
                 <select
                   value={row.assertion}
                   onChange={(e) =>
-                    handleChange(index, "assertion", e.target.value)
+                    handleChange(
+                      index,
+                      "assertion",
+                      e.target.value
+                    )
                   }
                 >
                   {assertions.map((a) => (
@@ -265,13 +342,20 @@ function App() {
                 <input
                   value={row.description}
                   onChange={(e) =>
-                    handleChange(index, "description", e.target.value)
+                    handleChange(
+                      index,
+                      "description",
+                      e.target.value
+                    )
                   }
                 />
               </td>
 
               <td>
-                <button className="delete" onClick={() => deleteRow(index)}>
+                <button
+                  className="delete"
+                  onClick={() => deleteRow(index)}
+                >
                   X
                 </button>
               </td>
@@ -280,8 +364,113 @@ function App() {
         </tbody>
       </table>
 
+      {/* ✅ GENERATED JSON */}
       <h3>Generated JSON</h3>
+
       <textarea value={output} readOnly />
+
+      {/* ✅ REPORT SECTION */}
+      {report && (
+
+        <div className="report-section">
+
+          <h2>📊 Execution Report</h2>
+
+          <p>
+            <strong>Status:</strong>{" "}
+            {report.status}
+          </p>
+
+          <p>
+            <strong>Total Time:</strong>{" "}
+            {report.totalExecutionTime} sec
+          </p>
+
+          {/* ✅ STEP REPORT TABLE */}
+          <table className="report-table">
+
+            <thead>
+              <tr>
+                <th>Step</th>
+                <th>Action</th>
+                <th>Status</th>
+                <th>Execution Time</th>
+                <th>Message</th>
+                <th>Screenshot</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              {report.steps.map((step, index) => (
+
+                <tr key={index}>
+
+                  <td>{step.stepNo}</td>
+
+                  <td>{step.action}</td>
+
+                  <td>
+                    {step.status === "PASSED"
+                      ? "✅ PASSED"
+                      : "❌ FAILED"}
+                  </td>
+
+                  <td>
+                    {step.executionTime} sec
+                  </td>
+
+                  <td>{step.message}</td>
+
+                  <td>
+
+                    {step.screenshot ? (
+
+                      <a
+                        href={`${BASE_URL}/${step.screenshot}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        View Screenshot
+                      </a>
+
+                    ) : (
+                      "-"
+                    )}
+
+                  </td>
+
+                </tr>
+              ))}
+
+            </tbody>
+
+          </table>
+
+          {/* ✅ CONSOLE LOGS */}
+          <h3>🖥 Console Logs</h3>
+
+          {report.consoleLogs &&
+            report.consoleLogs.length > 0 ? (
+
+            <div className="logs">
+
+              {report.consoleLogs.map(
+                (log, index) => (
+                  <p key={index}>{log}</p>
+                )
+              )}
+
+            </div>
+
+          ) : (
+
+            <p>No console logs available</p>
+
+          )}
+
+        </div>
+      )}
     </div>
   );
 }
