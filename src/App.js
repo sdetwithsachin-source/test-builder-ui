@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
+import * as XLSX from "xlsx";
 
 const actions = [
   "OPEN_URL",
@@ -90,6 +91,78 @@ function App() {
 
   const generateJSON = () => {
     setOutput(JSON.stringify({ steps: rows }, null, 2));
+  };
+
+  const handleExcelUpload = (e) => {
+
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = (evt) => {
+
+      const data = evt.target.result;
+
+      const workbook = XLSX.read(data, {
+        type: "binary"
+      });
+
+      const sheetName =
+        workbook.SheetNames[0];
+
+      const worksheet =
+        workbook.Sheets[sheetName];
+
+      const jsonData =
+        XLSX.utils.sheet_to_json(worksheet);
+
+      console.log("Excel Data:", jsonData);
+
+      const mappedRows = jsonData.map(
+        (row, index) => ({
+
+          step: index + 1,
+
+          action:
+            row.Action ||
+            row.action ||
+            row["Action Name"] ||
+            "OPEN_URL",
+
+          locatorType:
+            row["Locator Type"] ||
+            row.locatorType ||
+            "N/A",
+
+          locatorValue:
+            row["Locator Value"] ||
+            row.locatorValue ||
+            "",
+
+          data:
+            row.Data ||
+            row.data ||
+            "",
+
+          assertion:
+            row.Assertion ||
+            "",
+
+          description:
+            row.Description ||
+            row.Desc ||
+            "",
+
+          selected: false
+        })
+      );
+
+      setRows(mappedRows);
+    };
+
+    reader.readAsBinaryString(file);
   };
 
   // 🚀 RUN TEST
@@ -220,6 +293,16 @@ function App() {
         <button onClick={deleteSelectedRows}>
           🗑 Delete Selected
         </button>
+
+        <label className="import-btn">
+          📥 Import Excel
+          <input
+            type="file"
+            accept=".xlsx,.xls,.csv"
+            onChange={handleExcelUpload}
+            hidden
+          />
+        </label>
 
         <button onClick={generateJSON}>
           📦 Generate JSON
