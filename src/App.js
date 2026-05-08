@@ -13,7 +13,7 @@ const locatorTypes = ["N/A", "css", "xpath", "id", "text"];
 const assertions = ["", "equals", "contains", "visible"];
 
 function App() {
-  const [theme, setTheme] = useState("light");
+  const [theme, setTheme] = useState("dark");
   const [rows, setRows] = useState([createEmptyRow(1)]);
   const [output, setOutput] = useState("");
 
@@ -31,7 +31,8 @@ function App() {
       locatorValue: "",
       data: "",
       assertion: "",
-      description: ""
+      description: "",
+      selected: false
     };
   }
 
@@ -68,6 +69,18 @@ function App() {
       .map((row, i) => ({ ...row, step: i + 1 }));
 
     setRows(updated);
+  };
+
+  const deleteSelectedRows = () => {
+
+    const filteredRows = rows
+      .filter(row => !row.selected)
+      .map((row, index) => ({
+        ...row,
+        step: index + 1
+      }));
+
+    setRows(filteredRows);
   };
 
   const handleChange = (index, field, value) => {
@@ -208,6 +221,10 @@ function App() {
           ➕ Add Step
         </button>
 
+        <button onClick={deleteSelectedRows}>
+          🗑 Delete Selected
+        </button>
+
         <button onClick={generateJSON}>
           📦 Generate JSON
         </button>
@@ -237,6 +254,7 @@ function App() {
       <table>
         <thead>
           <tr>
+            <th>Select</th>
             <th>Step</th>
             <th>Action</th>
             <th>Locator Type</th>
@@ -244,13 +262,26 @@ function App() {
             <th>Data</th>
             <th>Assertion</th>
             <th>Description</th>
-            <th>Delete</th>
           </tr>
         </thead>
 
         <tbody>
           {rows.map((row, index) => (
             <tr key={index}>
+
+              <td>
+                <input
+                  type="checkbox"
+                  checked={row.selected || false}
+                  onChange={(e) =>
+                    handleChange(
+                      index,
+                      "selected",
+                      e.target.checked
+                    )
+                  }
+                />
+              </td>
 
               <td>{row.step}</td>
 
@@ -351,14 +382,7 @@ function App() {
                 />
               </td>
 
-              <td>
-                <button
-                  className="delete"
-                  onClick={() => deleteRow(index)}
-                >
-                  X
-                </button>
-              </td>
+
             </tr>
           ))}
         </tbody>
