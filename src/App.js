@@ -5,7 +5,6 @@ const actions = [
   "OPEN_URL",
   "CLICK",
   "TYPE",
-  "WAIT",
   "VERIFY_TEXT",
   "SCREENSHOT"
 ];
@@ -31,7 +30,6 @@ function App() {
       locatorType: "N/A",
       locatorValue: "",
       data: "",
-      wait: "",
       assertion: "",
       description: ""
     };
@@ -244,7 +242,6 @@ function App() {
             <th>Locator Type</th>
             <th>Locator Value</th>
             <th>Data</th>
-            <th>Wait (ms)</th>
             <th>Assertion</th>
             <th>Description</th>
             <th>Delete</th>
@@ -323,19 +320,6 @@ function App() {
                 />
               </td>
 
-              <td>
-                <input
-                  type="number"
-                  value={row.wait}
-                  onChange={(e) =>
-                    handleChange(
-                      index,
-                      "wait",
-                      e.target.value
-                    )
-                  }
-                />
-              </td>
 
               <td>
                 <select
