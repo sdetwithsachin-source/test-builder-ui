@@ -393,7 +393,7 @@ function App() {
 
       <textarea value={output} readOnly />
 
-      {/* ✅ REPORT SECTION */}
+      {/* ✅ REPORT SECTIONS */}
       {report && (
 
         <div className="report-section">
