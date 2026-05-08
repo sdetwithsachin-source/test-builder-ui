@@ -63,14 +63,6 @@ function App() {
     setRows([...rows, createEmptyRow(rows.length + 1)]);
   };
 
-  const deleteRow = (index) => {
-    const updated = rows
-      .filter((_, i) => i !== index)
-      .map((row, i) => ({ ...row, step: i + 1 }));
-
-    setRows(updated);
-  };
-
   const deleteSelectedRows = () => {
 
     const filteredRows = rows
@@ -114,8 +106,12 @@ function App() {
 
       setStatusMessage("🚀 Running test...");
 
+      const cleanedRows = rows.map(
+        ({ selected, ...rest }) => rest
+      );
+
       const jsonData = JSON.stringify({
-        steps: rows
+        steps: cleanedRows
       });
 
       // ✅ RUN EXECUTION
