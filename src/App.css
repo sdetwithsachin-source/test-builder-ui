@@ -93,18 +93,15 @@ textarea {
 }
 
 .import-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: inline-block;
   background: #4caf50;
   color: white;
-  padding: 8px 14px;
-  border-radius: 6px;
+  padding: 8px 12px;
+  border-radius: 4px;
   cursor: pointer;
   margin: 10px 5px;
-  font-weight: 500;
+  font-weight: normal;
   border: none;
-  min-height: 38px;
 }
 
 .import-btn:hover {
